@@ -35,6 +35,7 @@ root_dir=$(dirname "$0")/..
 unset input_file
 opt_input_file () {
     (( $# == 1 )) || fail_assert "$FUNCNAME: need 1 arg (got $#)"
+    [[ is-set != ${input_file+is-set} ]] || fail "option --input-file can only be called once"
     [[ -f $1 ]] || fail "arg to --input-file must be a file ($1)"
     [[ -r $1 ]] || fail "arg to --input-file must be readable ($1)"
     input_file=$1
