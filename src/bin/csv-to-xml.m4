@@ -46,6 +46,7 @@ opt_input_file () {
 unset output_file
 opt_output_file () {
     (( $# == 1 )) || fail_assert "$FUNCNAME: need 1 arg (got $#)"
+    [[ is-set != ${input_file+is-set} ]] || fail "option --output-file can only be called once"
     output_file=$1
 }
 
