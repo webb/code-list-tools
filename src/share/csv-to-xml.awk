@@ -15,7 +15,7 @@
 
 BEGIN {
   printf "<?xml version=\"1.0\" encoding=\"US-ASCII\" standalone=\"yes\"?>\n"
-  printf "<file xmlns=\"http://wr.gatech.edu/namespace/csv-to-xml/\">\n"
+  printf "<table xmlns=\"http://wr.gatech.edu/namespace/table/\">\n"
   FPAT = "[^,]*|(\"([^\"]|(\"\"))*\")"
   RS = "\n"
 }
@@ -30,11 +30,12 @@ BEGIN {
     gsub(/>/, "\\&gt;", $i)
     gsub(/""/, "\\&quot;", $i)
     gsub(/'/, "\\&apos;", $i)
+    $i = gensub(/-unicode-value-([0-9]+)-/, "\\&#\\1;", "g", $i)
     printf("  <column>%s</column>\n", $i)
   }
   printf "</row>\n"
 }
 
 END {
-  printf "</file>\n"
+  printf "</table>\n"
 }

@@ -16,7 +16,7 @@
 # this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #HELP:COMMAND_NAME: convert a CSV file into an XML document
-#HELP:Usage: COMMAND_NAME --input-file=$in.csv (--output-file=$out.csv)?
+#HELP:Usage: COMMAND_NAME (--output-file=$out.xml)? $in.csv
 
 set -o nounset -o errexit -o pipefail
 
@@ -24,49 +24,37 @@ root_dir=$(dirname "$0")/..
 . "$root_dir"/share/wrtools-core/opt_help.bash
 . "$root_dir"/share/wrtools-core/opt_verbose.bash
 . "$root_dir"/share/wrtools-core/fail.bash
-. "$root_dir"/share/wrtools-core/temp.bash
+. "$root_dir"/share/wrtools-core/paranoia.bash
+
+share_dir=$root_dir/'M_SHARE_DIR_REL'
 
 #HELP:Options:
 #HELP:  --help | -h: Print this help
-#HELP:  --keep-temps | -k: Don't delete temporary files
 #HELP:  --verbose, -v: Print additional diagnostics
-
-#HELP: --input-file=$input.csv | -i $input.csv: Read from source CSV file
-unset input_file
-opt_input_file () {
-    (( $# == 1 )) || fail_assert "$FUNCNAME: need 1 arg (got $#)"
-    [[ is-set != ${input_file+is-set} ]] || fail "option --input-file can only be called once"
-    [[ -f $1 ]] || fail "arg to --input-file must be a file ($1)"
-    [[ -r $1 ]] || fail "arg to --input-file must be readable ($1)"
-    input_file=$1
-}
+#HELP:  --not-paranoid: Omit basic/foundational validations
 
 #HELP: --output-file=$output.csv | -o $output.csv: Write to destination XML file
 #HELP:      Default is to output to stdout
-unset output_file
+output_file=/dev/fd/1
 opt_output_file () {
     (( $# == 1 )) || fail_assert "$FUNCNAME: need 1 arg (got $#)"
-    [[ is-set != ${input_file+is-set} ]] || fail "option --output-file can only be called once"
     output_file=$1
 }
 
 OPTIND=1
-while getopts :hi:ko:v-: option
+while getopts :ho:v-: option
 do case "$option" in
        h ) opt_help;;
-       i ) opt_input_file "$OPTARG";;
-       k ) opt_keep_temps;;
        o ) opt_output_file "$OPTARG";;
        v ) opt_verbose;;
        - ) case "$OPTARG" in
                help ) opt_help;;
-               input-file=* ) opt_input_file "${OPTARG#*=}";;
-               keep-temps ) opt_keep_temps;;
+               not-paranoid ) opt_not_paranoid;;
                output-file=* ) opt_output_file "${OPTARG#*=}";;
                verbose ) opt_verbose;;
-               input-file | output-file ) fail "Long option \"$OPTARG\" requires argument";;
+               output-file ) fail "Long option \"$OPTARG\" requires argument";;
                help=* \
-                 | keep-temps=* \
+                 | not-paranoid=* \
                  | verbose=* ) fail "Long option \"${OPTARG%%=*}\" has unexpected argument";;
                * ) fail "Unknown long option \"${OPTARG%%=*}\"";;
             esac;;
@@ -77,30 +65,45 @@ do case "$option" in
 done
 shift $((OPTIND-1))
 
-(( $# == 0 )) || fail "expected no args (got $#)"
+vecho "output_file is $output_file"
 
-[[ is-set = ${input_file+is-set} ]] || fail "option --input-file=$in.csv is required"
-
-if [[ is-set = ${output_file+is-set} ]]
-then exec 4>"$output_file"
-else exec 4>&1
-fi
-
-awk_bin=$(type -p gawk) || awk_bin=$(type -p awk) || fail "Can't find program \"gawk\" or \"awk\""
-
-csv_to_xml_awk="$root_dir"/'M_SHARE_DIR_REL'/csv-to-xml.awk
-[[ -f $csv_to_xml_awk ]] || fail "Can't find awk script \"$csv_to_xml_awk\""
+(( $# == 1 )) || fail "expected 1 argument (got $#)"
+input_file=$1
+vecho "input_file is $input_file"
+! is_paranoid || [[ -f $input_file && -r $input_file ]] || fail "file must be a readable file: $1"
 
 file_type=$(file --brief "$input_file")
+vecho "file type is $file_type"
+
 case $file_type in
+    "ASCII text" ) true ;;
     "ASCII text, with CR line terminators" )
-        exec 3< <(tr $'\r' $'\n' < "$input_file");;
+        exec 3< <(tr $'\r' $'\n' < "$input_file")
+        input_file=/dev/fd/3;;
     "ASCII text, with CRLF line terminators" )
-        exec 3< <(sed -e 's/'$'\r''$//' < "$input_file");;
-    "ASCII text" )
-        exec 3< "$input_file";;
+        exec 3< <(sed -e 's/'$'\r''$//' < "$input_file")
+        input_file=/dev/fd/3;;
+    "ISO-8859 English text, with CR line terminators" )
+        exec 3< <(tr $'\r' $'\n' < "$input_file" \
+                  | iconv -f iso-8859-1 -t ascii --unicode-subst="-unicode-value-%u-")
+        input_file=/dev/fd/3;;
+    # Put additional conversions here!
+    # Maybe use iconv
     * )
-        fail "Unknown input file type ($file_type)";;
+        fail "Unknown type for input file (file is $input_file; type is $file_type)";;
 esac
 
-"$awk_bin" -f "$csv_to_xml_awk" <&3 >&4
+! is_paranoid || type -p awk > /dev/null || fail "Can't find program (awk)"
+
+csv_to_xml_awk=$share_dir/csv-to-xml.awk
+! is_paranoid || [[ -f $csv_to_xml_awk ]] || fail "Can't find awk script ($csv_to_xml_awk)"
+
+awk -f "$csv_to_xml_awk" "$input_file" > "$output_file"
+
+if is_paranoid
+   stat=$(stat -c%F "$output_file")
+then case $stat in
+         "fifo" ) vecho "skipping xml schema validation on output for file type $stat";;
+         * ) xs-validate --catalog="$share_dir"/xml-catalog.xml "$output_file";;
+     esac
+fi

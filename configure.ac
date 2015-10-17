@@ -17,7 +17,7 @@
 # this program.  If not, see <http://www.gnu.org/licenses/>.
 
 AC_PREREQ([2.69])
-AC_INIT([wrtools-csv-xml], [0.1], [wr@gatech.edu])
+AC_INIT([code-list-tools], [0.1], [wr@gatech.edu])
 AC_COPYRIGHT
 
 # Checks for programs.

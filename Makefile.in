@@ -62,30 +62,28 @@ help:
 .PHONY: all # generate what can be generated
 all: $(all_files)
 
+${all_dir}/%: ${build_dir}/%
+	@ ${MKDIR_P} ${dir $@}
+	cp $< $@
+
+#############################################################################
+# build
+
+${build_dir}/${share_dir_rel}/%: src/share/%
+	@ ${MKDIR_P} ${dir $@}
+	cp $< $@
+
 ${build_dir}/%: src/%
 	@ ${MKDIR_P} ${dir $@}
-	${INSTALL} -m 644 $< $@
+	cp $< $@
 
 ${build_dir}/%: ${build_dir}/%.m4 Makefile
 	${m4_command} $< > $@
 
-${build_dir}/${share_dir_rel}/%: ${build_dir}/share/%
-	@ ${MKDIR_P} ${dir $@}
-	${INSTALL} -m 644 $< $@
-
-${all_dir}/bin/%: ${build_dir}/bin/%
-	@ ${MKDIR_P} ${dir $@}
-	${INSTALL} -m 755 $< $@
-
-${all_dir}/%: ${build_dir}/%
-	@ ${MKDIR_P} ${dir $@}
-	${INSTALL} -m 644 $< $@
-
-
 # =============================================================================
 # install
 
-.PHONY: install # put files into installation directory
+.PHONY: install # put files ${prefix} (defaults to @prefix@, set via configure)
 install: $(install_files)
 
 $(prefix)/bin/%: $(all_dir)/bin/%
@@ -96,6 +94,11 @@ $(prefix)/%: $(all_dir)/%
 	$(MKDIR_P) $(dir $@)
 	$(INSTALL) -m 644 $< $@
 
+#############################################################################
+
+.PHONY: uninstall # remove installed files
+uninstall:
+	$(RM) $(install_files)
 
 .PHONY: clean # remove generated files & junk
 clean:
@@ -106,10 +109,3 @@ clean:
 distclean: clean
 	$(RM) Makefile stow.mk config.log config.status
 	$(RM) -r autom4te.cache
-
-.PHONY: uninstall # try to remove installed files
-uninstall:
-	$(RM) $(install_files)
-
-
-

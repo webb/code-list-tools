@@ -1,4 +1,4 @@
-<?xml version="1.0" standalone="yes" encoding="US-ASCII"?>
+<?xml version="1.0" encoding="US-ASCII"?>
 <!--
 Copyright 2015 Georgia Tech Research Corporation (GTRC). All rights reserved.
 
@@ -15,14 +15,16 @@ details.
 You should have received a copy of the GNU General Public License along with
 this program.  If not, see <http://www.gnu.org/licenses/>.
 -->
-<schema targetNamespace="http://wr.gatech.edu/namespace/csv-to-xml/"
+<schema targetNamespace="http://wr.gatech.edu/namespace/table/"
         xmlns="http://www.w3.org/2001/XMLSchema">
-  <element name="file">
+  <element name="table">
     <complexType>
       <sequence>
-        <element name="row" minOccurs="0" maxOccurs="unbounded">
+        <element name="row" form="qualified" minOccurs="0" maxOccurs="unbounded">
           <complexType>
-            <element name="column" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
+            <sequence>
+              <element name="column" form="qualified" type="string" minOccurs="0" maxOccurs="unbounded"/>
+            </sequence>
           </complexType>
         </element>
       </sequence>
