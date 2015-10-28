@@ -33,6 +33,8 @@
     </xsl:copy>
   </xsl:template>
 
+  <!-- delete whitespace from element-only content; it will be properly 
+       formatted by indent on xsl:output -->
   <xsl:template match="t:table/text()" priority="1"/>
   <xsl:template match="t:row/text()" priority="1"/>
   <xsl:template match="gc:CodeList/text()" priority="1"/>
@@ -64,10 +66,8 @@
   </xsl:template>
 
 </xsl:stylesheet>
-<!--
-    Local Variables:
-    mode: sgml
-    indent-tabs-mode: nil
-    fill-column: 9999
-    End:
-  -->
+m4_dnl Local Variables:
+m4_dnl mode: sgml
+m4_dnl indent-tabs-mode: nil
+m4_dnl fill-column: 9999
+m4_dnl End:

@@ -15,8 +15,8 @@
 # You should have received a copy of the GNU General Public License along with
 # this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#HELP:COMMAND_NAME: convert a CSV file into an XML document
-#HELP:Usage: COMMAND_NAME (--output-file=$out.xml)? $in.csv
+#HELP:COMMAND_NAME: convert a CSV file into a Genericode XML document
+#HELP:Usage: COMMAND_NAME (--output-file=$out.xml)? $codes.csv $genericode-header.xml
 
 set -o nounset -o errexit -o pipefail
 
@@ -25,6 +25,7 @@ root_dir=$(dirname "$0")/..
 . "$root_dir"/share/wrtools-core/opt_verbose.bash
 . "$root_dir"/share/wrtools-core/fail.bash
 . "$root_dir"/share/wrtools-core/paranoia.bash
+. "$root_dir"/share/wrtools-core/temp.bash
 
 share_dir=$root_dir/'M_SHARE_DIR_REL'
 
@@ -35,7 +36,7 @@ share_dir=$root_dir/'M_SHARE_DIR_REL'
 
 #HELP: --output-file=$output.csv | -o $output.csv: Write to destination XML file
 #HELP:      Default is to output to stdout
-output_file=/dev/fd/1
+unset output_file
 opt_output_file () {
     (( $# == 1 )) || fail_assert "$FUNCNAME: need 1 arg (got $#)"
     output_file=$1
@@ -67,51 +68,27 @@ shift $((OPTIND-1))
 
 vecho "output_file is $output_file"
 
-(( $# == 1 )) || fail "expected 1 argument (got $#)"
-input_file=$1
-vecho "input_file is $input_file"
-! is_paranoid || [[ -f $input_file && -r $input_file ]] || fail "file must be a readable file: $1"
+(( $# == 2 )) || fail "expected 2 arguments (got $#)"
+codes_file=$1
+header_file=$2
 
-file_type=$(file --brief "$input_file")
-vecho "file type is $file_type"
+vecho "codes file is $codes_file"
+vecho "header file is $header_file"
 
-case $file_type in
-    "ASCII text" ) true ;;
-    "ASCII text, with CR line terminators" )
-        exec 3< <(tr $'\r' $'\n' < "$input_file")
-        input_file=/dev/fd/3;;
-    "ASCII text, with CRLF line terminators" )
-        exec 3< <(sed -e 's/'$'\r''$//' < "$input_file")
-        input_file=/dev/fd/3;;
-    "ISO-8859 English text, with CR line terminators" )
-        exec 3< <(tr $'\r' $'\n' < "$input_file" \
-                  | iconv -f iso-8859-1 -t ascii --unicode-subst="-unicode-value-%u-")
-        input_file=/dev/fd/3;;
-    "ISO-8859 English text" )
-        exec 3< <(iconv -f iso-8859-1 -t ascii --unicode-subst="-unicode-value-%u-" "$input_file")
-        input_file=/dev/fd/3;;
-    "ISO-8859 English text, with CRLF line terminators" )
-        exec 3< <(tr -d $'\r' < "$input_file" \
-                       | iconv -f iso-8859-1 -t ascii --unicode-subst="-unicode-value-%u-")
-        input_file=/dev/fd/3;;
-        
-    # Put additional conversions here!
-    # Maybe use iconv
-    * )
-        fail "Unknown type for input file (file is $input_file; type is $file_type)";;
-esac
+! is_paranoid || [[ -f $codes_file && -r $codes_file ]] || fail "codes file must be a readable file: $codes_file"
 
-! is_paranoid || type -p awk > /dev/null || fail "Can't find program (awk)"
+! is_paranoid || [[ -f $header_file && -r $header_file ]] || fail "header file must be a readable file: $header_file"
 
-csv_to_xml_awk=$share_dir/csv-to-xml.awk
-! is_paranoid || [[ -f $csv_to_xml_awk ]] || fail "Can't find awk script ($csv_to_xml_awk)"
+temp_make_file table_file
 
-awk -f "$csv_to_xml_awk" "$input_file" > "$output_file"
+csv-to-xml --output-file="$table_file" "$codes_file"
 
-if is_paranoid
-then stat=$(stat -c%F "$output_file")
-     case $stat in
-         "fifo" ) vecho "skipping xml schema validation on output for file type $stat";;
-         * ) xs-validate --catalog="$share_dir"/xml-catalog.xml "$output_file";;
-     esac
+command=(saxon --in="$header_file" --xsl="$share_dir"/csv-to-gc.xsl)
+if [[ is-set = ${output_file+is-set} ]]
+then command+=(--out="$output_file")
 fi
+command+=(-- +code-list="$table_file")
+
+vrun "${command[@]}"
+
+! is_paranoid || [[ is-set != ${output_file+is-set} ]] || check-genericode "$output_file"

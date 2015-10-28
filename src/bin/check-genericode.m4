@@ -1,0 +1,59 @@
+#!/usr/bin/env bash
+
+# Copyright 2015 Georgia Tech Research Corporation (GTRC). All rights reserved.
+
+# This program is free software: you can redistribute it and/or modify it under
+# the terms of the GNU General Public License as published by the Free Software
+# Foundation, either version 3 of the License, or (at your option) any later
+# version.
+
+# This program is distributed in the hope that it will be useful, but WITHOUT
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+# FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more
+# details.
+
+# You should have received a copy of the GNU General Public License along with
+# this program.  If not, see <http://www.gnu.org/licenses/>.
+
+set -o nounset -o errexit -o pipefail
+
+root_dir=$(dirname "$0")/..
+. "$root_dir"/share/wrtools-core/opt_help.bash
+. "$root_dir"/share/wrtools-core/opt_verbose.bash
+. "$root_dir"/share/wrtools-core/fail.bash
+. "$root_dir"/share/wrtools-core/paranoia.bash
+
+share_dir=$root_dir/'M_SHARE_DIR_REL'
+
+#HELP:COMMAND_NAME: check that a file is a Genericode file
+#HELP:Usage: COMMAND_NAME $file1.gc $file2.gc ...
+#HELP:Options:
+#HELP:  --help | -h: Print this help
+#HELP:  --verbose, -v: Print additional diagnostics
+#HELP:  --not-paranoid: Omit basic/foundational validations
+
+OPTIND=1
+while getopts :hv-: option
+do case "$option" in
+       h ) opt_help;;
+       v ) opt_verbose;;
+       - ) case "$OPTARG" in
+               help ) opt_help;;
+               not-paranoid ) opt_not_paranoid;;
+               verbose ) opt_verbose;;
+               help=* \
+                 | not-paranoid=* \
+                 | verbose=* ) fail "Long option \"${OPTARG%%=*}\" has unexpected argument";;
+               * ) fail "Unknown long option \"${OPTARG%%=*}\"";;
+            esac;;
+        '?' ) fail "Unknown short option \"$OPTARG\"";;
+        : ) fail "Short option \"$OPTARG\" missing argument";;
+        * ) fail_assert "Bad state in getopts (OPTARG=\"$OPTARG\")";;
+   esac
+done
+shift $((OPTIND-1))
+
+for subject_file
+do xs-validate --catalog="$share_dir"/xml-catalog.xml "$subject_file"
+   schematron-execute --xslt-file="$share_dir"/check-genericode.sch.xsl "$subject_file"
+done
