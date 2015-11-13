@@ -54,6 +54,7 @@ done
 shift $((OPTIND-1))
 
 for subject_file
-do xs-validate --catalog="$share_dir"/xml-catalog.xml "$subject_file"
-   schematron-execute --xslt-file="$share_dir"/check-genericode.sch.xsl "$subject_file"
+do vecho "validating $subject_file"
+   vrun xs-validate --catalog="$share_dir"/xml-catalog.xml "$subject_file"
+   vrun schematron-execute --xslt-file="$share_dir"/check-genericode.sch.xsl "$subject_file"
 done
