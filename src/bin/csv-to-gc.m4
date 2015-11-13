@@ -34,7 +34,7 @@ share_dir=$root_dir/'M_SHARE_DIR_REL'
 #HELP:  --verbose, -v: Print additional diagnostics
 #HELP:  --not-paranoid: Omit basic/foundational validations
 
-#HELP: --output-file=$output.csv | -o $output.csv: Write to destination XML file
+#HELP:  --output-file=$output.csv | -o $output.csv: Write to destination XML file
 #HELP:      Default is to output to stdout
 unset output_file
 opt_output_file () {
