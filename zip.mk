@@ -47,13 +47,15 @@ packages = \
 	wrtools_core \
 	saxon_cli \
 	schematron_cli \
-	self \
 	xalan_cli \
+	xml_schema_validator \
+	self \
 
 wrtools_core_repo = https://github.com/webb/wrtools-core.git
 saxon_cli_repo    = https://github.com/webb/saxon-cli.git
 xalan_cli_repo    = https://github.com/webb/xalan-cli.git
 schematron_cli_repo    = https://github.com/webb/schematron-cli.git
+xml_schema_validator_repo = https://github.com/webb/xml-schema-validator.git
 
 .PHONY: all
 all: ${packages:%=${tokens_dir}/make/%}
