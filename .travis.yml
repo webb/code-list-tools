@@ -1,4 +1,4 @@
-language: c
+language: java
 script: make -f zip.mk zip release=${TRAVIS_TAG}
 deploy:
   provider: releases
