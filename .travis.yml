@@ -1,0 +1,11 @@
+language: c
+script: make -f zip.mk zip release=${TRAVIS_TAG}
+deploy:
+  provider: releases
+  api_key:
+    secure: K7f10SETwgSHB0Ms7iQu4nJZ6qJfuUAjxrpidvOko80Ib8Y0MFrVLrRyC2ttcfc7AZr+u/IbJCDM5y+cK8Pqe2C4f12g1JUDHoF6M5Y+tcAQ2QJ/rhZTIfCB0HtBjFLGHSoimm4Ynb1SYWiNV7scSiYohbk9W99UewIdr71knSElpWIIwpLciWOCJc4Bm/aMJOA7zyfRju2OwspabCKfjutLHuXNCZiPf8nV0T68weCLBe8EVyBdM/jbFHrgL8n1sFWJ7MRjTRzf/J5qD6yWCtSk31LAjYGJpChmHqwovkd8gKQZR92npYw8v39NO5Wxyf2z2NBp7DTApJ1UOiFQfeFZc3WK8Vc2hssfA5VYrSU3rl+pS6ErTuk9mkqhxVbiUn6bF7RxtG+HAn0TTPOtvbUdwG6yTayLiyLpL1kUMjGTh+iTMbkZVCyzi+HUQpl4FYKqE/jNssLvXOsiDndA4yF5V/nO4j+q6Vtcn0BvqzvpCIz6UL19WW4pwNsqmVAA6hu9O5j4RXgGhRQPKiVRYp2fmdlCRWwUezgZhcy0koOrpnIwuI0b8cWAc1j435aDeS2PjbaSjO8KRXNCoSRwmkDmUmJlG43zaKhv9A6JgqXqiDXPTv8GwQJ/9C0Tbf/pIRhBSXkcDepilygKTsK5FU0agewKkI0HNPXOIitPIQY=
+  file: tmp/zip/${TRAVIS_TAG}.zip
+  on:
+    repo: webb/code-list-tools
+    all_branches: true
+    tags: true

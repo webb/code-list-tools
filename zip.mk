@@ -16,11 +16,12 @@ SHELL = /bin/bash
 # You should have received a copy of the GNU General Public License along with
 # this program.  If not, see <http://www.gnu.org/licenses/>.
 
-describe := ${shell git describe --tags 2> /dev/null}
-ifeq (${describe},)
+release = ${shell git describe --tags 2> /dev/null}
+
+ifeq (${release},)
 dist_name = code-list-tools-LATEST
 else
-dist_name = code-list-tools-${describe}
+dist_name = ${release}
 endif
 
 .SECONDARY:
