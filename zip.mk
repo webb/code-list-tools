@@ -29,6 +29,10 @@ endif
 zip_dir = tmp/zip
 root_dir = ${zip_dir}/${dist_name}
 override root_dir_abs = ${shell mkdir -p ${root_dir} && cd ${root_dir} && pwd}
+
+# building some packages requires other packages, so the pile goes on the path, and order matters
+PATH := ${root_dir_abs}/bin:${PATH}
+
 repos_dir= ${zip_dir}/repos
 tokens_dir = ${zip_dir}/token
 
@@ -38,7 +42,13 @@ tokens_dir = ${zip_dir}/token
 # * make
 # * install = make install
 
-packages = self wrtools_core saxon_cli xalan_cli schematron_cli 
+# order matters here
+packages = \
+	wrtools_core \
+	saxon_cli \
+	schematron_cli \
+	self \
+	xalan_cli \
 
 wrtools_core_repo = https://github.com/webb/wrtools-core.git
 saxon_cli_repo    = https://github.com/webb/saxon-cli.git

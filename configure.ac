@@ -38,13 +38,7 @@ AC_DEFUN([WR_check_prog_options],[AC_PATH_PROGS($1,$2)
 
 WR_check_prog(bash)
 WR_check_prog(m4)
-WR_check_prog(saxon)
 WR_check_prog(schematron)
-WR_check_prog(touch)
-WR_check_prog(xmllint)
-WR_check_prog(xsdvalid)
-
-AC_PATH_PROG(check_simple_xsd,check-simple-xsd)
 
 AC_PATH_PROGS(stow,stow,stow)
 
