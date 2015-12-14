@@ -77,6 +77,7 @@ vecho "file type is $file_type"
 
 case $file_type in
     "ASCII text" ) true ;;
+    "ASCII English text, with very long lines" ) true ;;
     "ASCII text, with CR line terminators" )
         exec 3< <(tr $'\r' $'\n' < "$input_file")
         input_file=/dev/fd/3;;
