@@ -11,6 +11,26 @@
   <ns prefix="xsl" uri="http://www.w3.org/1999/XSL/Transform"/>
   <ns prefix="xsi" uri="http://www.w3.org/2001/XMLSchema-instance"/>
   <ns prefix="gc" uri="http://docs.oasis-open.org/codelist/ns/genericode/1.0/"/>
+
+  <!--
+      checks to make:
+
+      [ ] code list document has at least one key constraint
+      [ ] code list document has at least one row
+      [ ] key constraint is maintained
+      [ ] a row does not define a single column twice
+      [ ] every IDREF in the document references the right kind of thing
+          [ ] every column ref (e.g., a code value) references a column
+      [ ] every code value is assigned to a column (you can't fall of the right hand side)
+
+      checks to make elsewhere:
+
+      [ ] every code value has the right type. This is an XSD check and has to 
+          be done SOMEWHERE ELSE.  You'd likely have to output the code list 
+          as SOME OTHER CUSTOM FORMAT with rows and column, and strongly type 
+          each cell. Not hard, but PITA.
+
+      -->
   
   <pattern>
     <rule context="/gc:ColumnSet">
