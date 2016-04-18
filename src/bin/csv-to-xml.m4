@@ -76,27 +76,30 @@ file_type=$(file --brief "$input_file")
 vecho "file type is $file_type"
 
 case $file_type in
-    "ASCII text" \
-      | "ASCII English text, with very long lines" )
+    'ASCII text' \
+      | 'ASCII English text, with very long lines' \
+      | 'ASCII English text' \
+      | 'ASCII text, with very long lines' )
         true ;;
-    "ASCII text, with CR line terminators" \
-      | "ASCII English text, with very long lines, with CR line terminators" \
-      | "ASCII text, with very long lines, with CR line terminators" )
+    'ASCII text, with CR line terminators' \
+      | 'ASCII English text, with very long lines, with CR line terminators' \
+      | 'ASCII text, with very long lines, with CR line terminators' )
         exec 3< <(tr $'\r' $'\n' < "$input_file")
         input_file=/dev/fd/3;;
-    "ASCII text, with CRLF line terminators" )
+    'ASCII text, with CRLF line terminators' )
         exec 3< <(sed -e 's/'$'\r''$//' < "$input_file")
         input_file=/dev/fd/3;;
-    "ISO-8859 English text, with CR line terminators" )
+    'ISO-8859 English text, with CR line terminators' \
+      | 'ISO-8859 text, with CR line terminators' )
         exec 3< <(tr $'\r' $'\n' < "$input_file" \
-                  | iconv -f iso-8859-1 -t ascii --unicode-subst="-unicode-value-%u-")
+                  | iconv -f iso-8859-1 -t ascii --unicode-subst='-unicode-value-%u-')
         input_file=/dev/fd/3;;
-    "ISO-8859 English text" )
-        exec 3< <(iconv -f iso-8859-1 -t ascii --unicode-subst="-unicode-value-%u-" "$input_file")
+    'ISO-8859 English text' )
+        exec 3< <(iconv -f iso-8859-1 -t ascii --unicode-subst='-unicode-value-%u-' "$input_file")
         input_file=/dev/fd/3;;
-    "ISO-8859 English text, with CRLF line terminators" )
+    'ISO-8859 English text, with CRLF line terminators' )
         exec 3< <(tr -d $'\r' < "$input_file" \
-                       | iconv -f iso-8859-1 -t ascii --unicode-subst="-unicode-value-%u-")
+                       | iconv -f iso-8859-1 -t ascii --unicode-subst='-unicode-value-%u-')
         input_file=/dev/fd/3;;
         
     # Put additional conversions here!
