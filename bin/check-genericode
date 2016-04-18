@@ -15,8 +15,6 @@
 # You should have received a copy of the GNU General Public License along with
 # this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#HELP:COMMAND_NAME: get the qualified name of the document element of an XML document
-
 set -o nounset -o errexit -o pipefail
 
 root_dir=$(dirname "$0")/..
@@ -25,15 +23,17 @@ root_dir=$(dirname "$0")/..
 . "$root_dir"/share/wrtools-core/fail.bash
 . "$root_dir"/share/wrtools-core/paranoia.bash
 
-share_dir=$root_dir/'M_SHARE_DIR_REL'
+share_dir=$root_dir/'share/code-list-tools'
 
+#HELP:COMMAND_NAME: check that a file is a Genericode file
+#HELP:Usage: COMMAND_NAME $file1.gc $file2.gc ...
 #HELP:Options:
 #HELP:  --help | -h: Print this help
 #HELP:  --verbose, -v: Print additional diagnostics
 #HELP:  --not-paranoid: Omit basic/foundational validations
 
 OPTIND=1
-while getopts :ho:v-: option
+while getopts :hv-: option
 do case "$option" in
        h ) opt_help;;
        v ) opt_verbose;;
@@ -53,7 +53,8 @@ do case "$option" in
 done
 shift $((OPTIND-1))
 
-(( $# == 1 )) || fail "expected 1 argument (got $#)"
-vecho "input file is $1"
-
-xalan --in="$1" --xsl="$share_dir"/get-document-element-name.xsl
+for subject_file
+do vecho "validating $subject_file"
+   vrun xs-validate --catalog="$share_dir"/xml-catalog.xml "$subject_file"
+   vrun schematron-execute --xslt-file="$share_dir"/check-genericode.sch.xsl "$subject_file"
+done

@@ -27,7 +27,7 @@ root_dir=$(dirname "$0")/..
 . "$root_dir"/share/wrtools-core/paranoia.bash
 . "$root_dir"/share/wrtools-core/temp.bash
 
-share_dir=$root_dir/'M_SHARE_DIR_REL'
+share_dir=$root_dir/'share/code-list-tools'
 
 #HELP:Options:
 #HELP:  --help | -h: Print this help

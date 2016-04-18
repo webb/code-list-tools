@@ -66,8 +66,3 @@
   </xsl:template>
 
 </xsl:stylesheet>
-m4_dnl Local Variables:
-m4_dnl mode: sgml
-m4_dnl indent-tabs-mode: nil
-m4_dnl fill-column: 9999
-m4_dnl End:
