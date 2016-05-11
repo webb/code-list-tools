@@ -23,7 +23,7 @@ this program.  If not, see <http://www.gnu.org/licenses/>.
         <element name="row" form="qualified" minOccurs="0" maxOccurs="unbounded">
           <complexType>
             <sequence>
-              <element name="column" form="qualified" type="string" minOccurs="0" maxOccurs="unbounded"/>
+              <element name="cell" form="qualified" type="string" minOccurs="0" maxOccurs="unbounded"/>
             </sequence>
           </complexType>
         </element>

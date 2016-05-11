@@ -31,7 +31,7 @@ BEGIN {
     gsub(/""/, "\\&quot;", $i)
     gsub(/'/, "\\&apos;", $i)
     $i = gensub(/-unicode-value-([0-9]+)-/, "\\&#\\1;", "g", $i)
-    printf("  <column>%s</column>\n", $i)
+    printf("  <cell>%s</cell>\n", $i)
   }
   printf "</row>\n"
 }

@@ -57,7 +57,7 @@
     </Row>
   </xsl:template>
 
-  <xsl:template match="t:column" priority="1">
+  <xsl:template match="t:cell" priority="1">
     <Value>
       <SimpleValue><xsl:value-of select="."/></SimpleValue>
     </Value>
