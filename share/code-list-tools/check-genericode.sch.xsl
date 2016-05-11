@@ -257,10 +257,10 @@
 
 		    <!--ASSERT -->
       <xsl:choose>
-         <xsl:when test="not(matches(normalize-space(.), ' '))"/>
+         <xsl:when test="not(matches(normalize-space(concat('X', string(.), 'X')), ' '))"/>
          <xsl:otherwise>
             <svrl:failed-assert xmlns:svrl="http://purl.oclc.org/dsdl/svrl"
-                                test="not(matches(normalize-space(.), ' '))">
+                                test="not(matches(normalize-space(concat('X', string(.), 'X')), ' '))">
                <xsl:attribute name="location">
                   <xsl:apply-templates select="." mode="schematron-select-full-path"/>
                </xsl:attribute>

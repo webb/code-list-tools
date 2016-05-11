@@ -23,7 +23,7 @@
 
   <sch:pattern>
     <sch:rule context="ShortName">
-      <sch:assert test="not(matches(normalize-space(.), ' '))"
+      <sch:assert test="not(matches(normalize-space(concat('X', string(.), 'X')), ' '))"
           >element ShortName MUST NOT have whitespace. (Rule 39)</sch:assert>
     </sch:rule>
   </sch:pattern>
